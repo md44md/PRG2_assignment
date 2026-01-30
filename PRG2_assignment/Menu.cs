@@ -18,12 +18,12 @@ namespace PRG2_assignment
             FoodItemList = new List<FoodItem>();
         }
 
-        public Menu(string menuID, string menuName, List<FoodItem> initialFoods)
+        public Menu(string menuID, string menuName)
         {
             MenuId = menuID;
             MenuName = menuName;
             
-            FoodItemList = initialFoods ;
+            FoodItemList = new List<FoodItem>();
         }
 
         public void AddFoodItem(FoodItem foodItem)

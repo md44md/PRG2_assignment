@@ -26,14 +26,14 @@ namespace PRG2_assignment
             SpecialOfferList = new List<SpecialOffer>();
         }
 
-        public Restaurant(string restaurantId, string restaurantName, string restaurantEmail, List<Menu> initialMenu)
+        public Restaurant(string restaurantId, string restaurantName, string restaurantEmail)
         {
             RestaurantId= restaurantId;
             RestaurantName= restaurantName;
             RestaurantEmail= restaurantEmail;
 
             OrderItemList = new Queue<Order>();
-            MenuItemList = initialMenu;
+            MenuItemList = new List<Menu>();
             SpecialOfferList = new List<SpecialOffer>();
         }
 
