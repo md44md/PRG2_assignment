@@ -28,7 +28,7 @@ namespace PRG2_assignment
 
         public Restaurant(string restaurantId, string restaurantName, string restaurantEmail)
         {
-            RestaurantId= restaurantId;
+            RestaurantId = restaurantId;
             RestaurantName= restaurantName;
             RestaurantEmail= restaurantEmail;
 

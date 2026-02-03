@@ -10,7 +10,12 @@ namespace PRG2_assignment
         public string OfferDesc { get; set; }
         public double Discount { get; set; }
 
-        public SpecialOffer() { }
+        public SpecialOffer() 
+        {
+            OfferCode = "";
+            OfferDesc = "";
+            Discount = 0.0;
+        }
 
         public SpecialOffer(string offerCode, string offerDesc, double discount)
         {

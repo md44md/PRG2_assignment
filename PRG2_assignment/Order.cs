@@ -17,13 +17,28 @@ namespace PRG2_assignment
 
         public List<OrderedFoodItem> OrderedFoodItems { get; set; }
         public Customer Customer { get; set; }
+        public Restaurant Restaurant { get; set; }
+        public SpecialOffer SpecialOffer { get; set; }
 
-        public Order() { }
-        public Order(int orderId, DateTime orderDateTime, double orderTotal, string orderStatus, DateTime deliveryDateTime, string deliveryAddress, string orderPaymentMethod, bool orderPaid, List<OrderedFoodItem> orderedFoodItems, Customer customer)
+        public Order() 
         {
-            if (orderedFoodItems == null || orderedFoodItems.Count == 0)
-                throw new ArgumentException("An order must have at least one OrderedFoodItem.");
+            OrderId = 0;
+            OrderDateTime = DateTime.Now;
+            OrderTotal = 0.0;
+            OrderStatus = "Pending";
+            DeliveryDateTime = DateTime.MinValue;
+            DeliveryAddress = "";
+            OrderPaymentMethod = "";
+            OrderPaid = false;
 
+            OrderedFoodItems = new List<OrderedFoodItem>();
+            Customer = null;
+            Restaurant = null;
+            SpecialOffer = null;
+        }
+
+        public Order(int orderId, DateTime orderDateTime, double orderTotal, string orderStatus, DateTime deliveryDateTime, string deliveryAddress, string orderPaymentMethod, bool orderPaid, Customer customer, Restaurant restaurant, SpecialOffer specialOffer)
+        {
             OrderId = orderId;
             OrderDateTime = orderDateTime;
             OrderTotal = orderTotal;
@@ -33,8 +48,10 @@ namespace PRG2_assignment
             OrderPaymentMethod = orderPaymentMethod;
             OrderPaid = orderPaid;
 
-            Customer = customer ?? throw new ArgumentException("Order must have a Customer.");
-            OrderedFoodItems = orderedFoodItems;
+            OrderedFoodItems = new List<OrderedFoodItem>();
+            Customer = customer;
+            Restaurant = restaurant;
+            SpecialOffer = specialOffer;
         }
 
         public double CalculateOrderTotal()
