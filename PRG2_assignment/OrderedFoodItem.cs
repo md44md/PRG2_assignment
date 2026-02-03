@@ -8,7 +8,11 @@ namespace PRG2_assignment
     {
         public int QtyOrdered { get; set; }
         public double SubTotal { get; set; }
-        public OrderedFoodItem() { }
+        public OrderedFoodItem() 
+        { 
+            QtyOrdered = 0;
+            SubTotal = 0.0;
+        }
         public OrderedFoodItem(string itemName, string itemDesc, double itemPrice, string customise, int qtyOrdered, double subTotal)
             : base(itemName, itemDesc, itemPrice, customise)
         {

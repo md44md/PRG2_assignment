@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.AccessControl;
 using System.Text;
 
 namespace PRG2_assignment
@@ -10,7 +11,13 @@ namespace PRG2_assignment
         public string ItemDesc { get; set; }
         public double ItemPrice { get; set; }
         public string Customise { get; set; }
-        public FoodItem() { }
+        public FoodItem() 
+        {
+            ItemName = "";
+            ItemDesc = "";
+            ItemPrice = 0.0;
+            Customise = "";
+        }
         public FoodItem(string itemName, string itemDesc, double itemPrice, string customise)
         {
             ItemName = itemName;

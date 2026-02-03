@@ -10,15 +10,17 @@ namespace PRG2_assignment
         public string CustomerName { get; set; }
         public List<Order> Orders { get; set; }
 
-        public Customer() { }
-        public Customer(string emailAddress, string customerName, List<Order> orders)
+        public Customer() 
         {
-            if (orders == null || orders.Count == 0)
-                throw new ArgumentException("A customer msut have an order.");
-
+            EmailAddress = "";
+            CustomerName = "";
+            Orders = new List<Order>();
+        }
+        public Customer(string emailAddress, string customerName)
+        {
             EmailAddress = emailAddress;
             CustomerName = customerName;
-            Orders = orders;    
+            Orders = new List<Order>();
         }
 
         public void AddOrder(Order order)

@@ -22,7 +22,6 @@ namespace PRG2_assignment
         {
             MenuId = menuID;
             MenuName = menuName;
-            
             FoodItemList = new List<FoodItem>();
         }
 
