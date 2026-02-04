@@ -71,11 +71,11 @@ namespace PRG2_assignment
             MenuItemList.Add(menu);
         }
 
-        public bool RemoveMenu(Menu menuItem)
+        public bool RemoveMenu(Menu menu)
         {
-            if (MenuItemList.Contains(menuItem))
+            if (MenuItemList.Contains(menu))
             {
-                MenuItemList.Remove(menuItem);
+                MenuItemList.Remove(menu);
                 return true;
             }
             return false;
