@@ -10,8 +10,8 @@ namespace PRG2_assignment
         public string RestaurantName { get; set; }
         public string RestaurantEmail { get; set; }
 
-        public Queue<Order> OrderItemList { get; set; }
-        public List<Menu> MenuItemList { get; set; }
+        public Queue<Order> OrderList { get; set; }
+        public List<Menu> MenuList { get; set; }
         public List<SpecialOffer> SpecialOfferList { get; set; }
         
 
@@ -21,8 +21,8 @@ namespace PRG2_assignment
             RestaurantId = "";
             RestaurantName = "";
             RestaurantEmail = "";
-            OrderItemList = new Queue<Order>();
-            MenuItemList = new List<Menu>();
+            OrderList = new Queue<Order>();
+            MenuList = new List<Menu>();
             SpecialOfferList = new List<SpecialOffer>();
         }
 
@@ -32,8 +32,8 @@ namespace PRG2_assignment
             RestaurantName= restaurantName;
             RestaurantEmail= restaurantEmail;
 
-            OrderItemList = new Queue<Order>();
-            MenuItemList = new List<Menu>();
+            OrderList = new Queue<Order>();
+            MenuList = new List<Menu>();
             SpecialOfferList = new List<SpecialOffer>();
         }
 
@@ -41,7 +41,7 @@ namespace PRG2_assignment
         {
             int count = 1;
             Console.WriteLine($"--- {RestaurantName}'s Orders ---");
-            foreach (Order item in OrderItemList)
+            foreach (Order item in OrderList)
             {
                 Console.WriteLine($"Position {count} - {item}");
                 count ++;
@@ -60,7 +60,7 @@ namespace PRG2_assignment
         public void DisplayMenu()
         {
             Console.WriteLine($"--- {RestaurantName}'s Menu ---");
-            foreach (Menu item in MenuItemList)
+            foreach (Menu item in MenuList)
             {
                 Console.WriteLine(item);
             }
@@ -68,14 +68,14 @@ namespace PRG2_assignment
 
         public void AddMenu(Menu menu)
         {
-            MenuItemList.Add(menu);
+            MenuList.Add(menu);
         }
 
         public bool RemoveMenu(Menu menu)
         {
-            if (MenuItemList.Contains(menu))
+            if (MenuList.Contains(menu))
             {
-                MenuItemList.Remove(menu);
+                MenuList.Remove(menu);
                 return true;
             }
             return false;
