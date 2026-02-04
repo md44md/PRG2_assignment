@@ -6,6 +6,7 @@ using PRG2_assignment;
 List<Restaurant> restaurantList = new List<Restaurant>();
 string[] restaurantLines = File.ReadAllLines("data/restaurants.csv");
 
+// Create restaurants and main menus, add restaurants to restaurantList
 for (int i = 1; i < restaurantLines.Length; i++)
 {
     string line = restaurantLines[i];
@@ -17,9 +18,12 @@ for (int i = 1; i < restaurantLines.Length; i++)
 
     Restaurant resObj = new Restaurant(restaurantId, restaurantName, resturantEmail);
     restaurantList.Add(resObj);
+
+    Menu menu = new Menu("1", "Main Menu");
+    resObj.AddMenu(menu);
 }
 
-List<Menu> menuList = new List<Menu>();
+// Create foodItems, add foodItems to restaurant main menu
 string[] fooditemsLines = File.ReadAllLines("data/fooditems.csv");
 
 for (int i = 1; i < fooditemsLines.Length; i++)
@@ -34,40 +38,25 @@ for (int i = 1; i < fooditemsLines.Length; i++)
 
     FoodItem foodObj = new FoodItem(itemName, desc, price, "");
 
-    Menu menu = null;
+    Restaurant restaurant = null;
 
-    // if menu already exists, set menu to that menu
-    foreach (Menu m in menuList)
+    foreach (Restaurant r in restaurantList)
     {
-        if (m.MenuId == restaurantId)
+        if (r.RestaurantId == restaurantId)
         {
-            menu = m;
+            restaurant = r;
             break;
         }
     }
 
-    // if menu doesnt exist, create new menu object
-    if (menu == null)
+    if (restaurant != null)
     {
-        menu = new Menu(restaurantId, "Main Menu");
-        menuList.Add(menu);
-    }
-
-    menu.AddFoodItem(foodObj);
-}
-
-foreach (Menu menu in menuList)
-{
-    foreach (Restaurant restaurant in restaurantList)
-    {
-        if (restaurant.RestaurantId == menu.MenuId)
-        {
-            restaurant.AddMenu(menu);
-            break;
-        }
+        restaurant.MenuList[0].AddFoodItem(foodObj);
     }
 }
 
+
+//// print all menus (testing)
 //foreach (var r in restaurantList)
 //{
 //    r.DisplayMenu();
