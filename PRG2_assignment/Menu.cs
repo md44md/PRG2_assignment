@@ -51,7 +51,12 @@ namespace PRG2_assignment
 
         public override string ToString()
         {
-            return $"Menu ID is: {MenuId}, Menu name is: {MenuName}";
+            string result = $"--- {MenuName} ---\n";
+            foreach (var food in FoodItemList)
+            {
+                result += food.ToString() + "\n";
+            }
+            return result;
         }
     }
 }
