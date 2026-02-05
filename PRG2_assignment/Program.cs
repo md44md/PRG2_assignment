@@ -4,8 +4,8 @@
 // Partner Name : 
 //==========================================================
 
-// student A - KZ: 1,4,6,8
-// student B - Muhd: 2,3,5,7
+// student A - KZ: 1✓,4,6,8
+// student B - Muhd: 2✓,3✓,5,7
 
 using PRG2_assignment;
 using System.Globalization;
@@ -196,17 +196,19 @@ for (int i = 1; i < orderLines.Length; i++)
 // -------------------------------------------------------------------------------------------------------------------------------
 
 // Feature 3
-Console.WriteLine("All Restaurants and Menu Items\n==============================");
-foreach (Restaurant r in restaurantList)
+void listRestaurantsMenuItems()
 {
-    Console.WriteLine($"Restuarant: {r.RestaurantName} ({r.RestaurantId})");
-    r.DisplayMenu();
-    Console.WriteLine();
+    Console.WriteLine("All Restaurants and Menu Items\n==============================");
+    foreach (Restaurant r in restaurantList)
+    {
+        Console.WriteLine($"Restuarant: {r.RestaurantName} ({r.RestaurantId})");
+        r.DisplayMenu();
+        Console.WriteLine();
+    }
 }
 
 
 // -------------------------------------------------------------------------------------------------------------------------------
-
 
 // Feature 4
 
@@ -293,14 +295,42 @@ foreach (Restaurant r in restaurantList)
 
 
 
-
-
-
+// -------------------------------------------------------------------------------------------------------------------------------
 
 // Feature 5
 
+void createNewOrder()
+{
+    Console.WriteLine("Create New Order\n================");
+    Console.Write("Enter Customer Email: ");
+    string emailAddress = Console.ReadLine();
 
+    Console.Write("Enter Restaurant ID: ");
+    string restaurantID = Console.ReadLine();
+    Restaurant createOrderRestaurant = null;
+    foreach (Restaurant r in restaurantList)
+    {
+        if (r.RestaurantId == restaurantID)
+        {
+            createOrderRestaurant = r;
+            break;
+        }
+    }
+    if (createOrderRestaurant == null)
+    {
+        Console.WriteLine("RestaurantID does not exist");
+    }
+    Console.Write("Enter Delivery Date (dd/mm/yyyy): ");
+    string deliveryDate = Console.ReadLine();
+    Console.Write("Enter Delivery Time (hh:mm): ");
+    string deliveryTime = Console.ReadLine();
+    Console.Write("Enter Delivery Address: ): ");
+    string deliveryAddress = Console.ReadLine();
 
+    createOrderRestaurant.MenuList[0].DisplayFoodItems();
+}
+
+createNewOrder();
 
 
 
