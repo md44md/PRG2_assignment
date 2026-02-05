@@ -42,21 +42,15 @@ namespace PRG2_assignment
 
         public void DisplayFoodItems()
         {
-            Console.WriteLine($"--- {MenuName} ---");
             foreach (FoodItem item in FoodItemList)
             {
-                Console.WriteLine(item);
+                Console.WriteLine($"  - {item.ItemName}: {item.ItemDesc} - ${item.ItemPrice:F2}");
             }
         }
 
         public override string ToString()
         {
-            string result = $"--- {MenuName} ---\n";
-            foreach (var food in FoodItemList)
-            {
-                result += food.ToString() + "\n";
-            }
-            return result;
+            return $"MenuID: {MenuId} MenuName: {MenuName}";
         }
     }
 }

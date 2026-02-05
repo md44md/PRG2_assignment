@@ -59,10 +59,9 @@ namespace PRG2_assignment
 
         public void DisplayMenu()
         {
-            Console.WriteLine($"--- {RestaurantName}'s Menus ---");
             foreach (Menu item in MenuList)
             {
-                Console.WriteLine(item);
+                item.DisplayFoodItems();
             }
         }
 
