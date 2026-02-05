@@ -201,123 +201,23 @@ for (int i = 1; i < orderLines.Length; i++)
     orderRestaurant.OrderList.Enqueue(orderObj);
 }
 
-// TESTING
-//foreach (Restaurant r in restaurantList)
-//{
-//    foreach (Order o in r.OrderList)
-//    {
-//        foreach (OrderedFoodItem ofi in o.OrderedFoodItems)
-//        {
-//            Console.WriteLine(ofi);
-//        }
-//    }
-//}
-
 
 // -------------------------------------------------------------------------------------------------------------------------------
 
 // Feature 3
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Console.WriteLine("All Restaurants and Menu Items\n==============================");
+foreach (Restaurant r in restaurantList)
+{
+    Console.WriteLine($"Restuarant: {r.RestaurantName} ({r.RestaurantId})");
+    r.DisplayMenu();
+    Console.WriteLine();
+}
+
+
+// -------------------------------------------------------------------------------------------------------------------------------
 
 
 // Feature 4
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
