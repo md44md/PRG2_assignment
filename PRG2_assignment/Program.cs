@@ -64,15 +64,6 @@ for (int i = 1; i < fooditemsLines.Length; i++)
     }
 }
 
-// TESTING 
-//foreach (Restaurant r in restaurantList)
-//{
-//    foreach (Menu m in r.MenuList)
-//    {
-//        Console.WriteLine(m);
-//    }
-//}
-
 
 // -------------------------------------------------------------------------------------------------------------------------------
 
@@ -218,6 +209,15 @@ foreach (Restaurant r in restaurantList)
 
 
 // Feature 4
+
+
+
+
+
+
+
+
+
 
 
 
