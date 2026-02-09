@@ -5,7 +5,7 @@
 //==========================================================
 
 // student A - KZ: 1✓,4,6,8
-// student B - Muhd: 2✓,3✓,5,7
+// student B - Muhd: 2✓,3✓,5✓,7
 
 using PRG2_assignment;
 using System.Globalization;
@@ -595,13 +595,160 @@ void createNewOrder()
 
 
 
-
+// -------------------------------------------------------------------------------------------------------------------------------
 
 // Feature 7
 
+void modifyOrder()
+{
+    Console.WriteLine("Modify Order\r\n============");
 
+    // Input customer email and search for email
+    Console.Write("Enter Customer Email: ");
+    string emailAddress = Console.ReadLine();
 
+    Customer orderCustomer = new Customer();
+    foreach (Customer c in customerList)
+    {
+        if (c.EmailAddress == emailAddress)
+        {
+            orderCustomer = c;
+            break;
+        }
+    }
+    if (orderCustomer == null)
+    {
+        Console.WriteLine("Customer email does not exist");
+        return;
+    }
 
+    // Add pending orders to a list and display list
+    List<Order> pendingOrders = new List<Order>();
+    foreach (Order o in orderCustomer.Orders)
+    {
+        if (o.OrderStatus == "Pending")
+        {
+            pendingOrders.Add(o);
+        }
+    }
+
+    if (pendingOrders.Count == 0)
+    {
+        Console.WriteLine("No pending orders.");
+        return;
+    }
+
+    Console.WriteLine("\nPending Orders:");
+    foreach (Order o in pendingOrders)
+    {
+        Console.WriteLine(o.OrderId);
+    }
+
+    // Prompt for order ID
+    Console.Write("Enter Order ID: ");
+    int orderId = Convert.ToInt32(Console.ReadLine());
+
+    Order orderToChange = null;
+    foreach (Order o in pendingOrders)
+    {
+        if (o.OrderId == orderId)
+        {
+            orderToChange = o;
+            break;
+        }
+    }
+    if (orderToChange == null)
+    {
+        Console.WriteLine("Invalid Order ID.");
+        return;
+    }
+
+    // Display order item info
+    Console.WriteLine("Order Items:");
+    for (int i = 0; i < orderToChange.OrderedFoodItems.Count; i++)
+    {
+        var item = orderToChange.OrderedFoodItems[i];
+        Console.WriteLine($"{i + 1}. {item.ItemName} - {item.QtyOrdered}");
+    }
+
+    Console.WriteLine("Address:");
+    Console.WriteLine(orderToChange.DeliveryAddress);
+
+    Console.WriteLine("Delivery Date/Time:");
+    Console.WriteLine(orderToChange.DeliveryDateTime.ToString("d/M/yyyy, HH:mm"));
+
+    // Prompt modification
+    Console.Write("\nModify: [1] Items [2] Address [3] Delivery Time: ");
+    int choice = Convert.ToInt32(Console.ReadLine());
+
+    if (choice == 1) // Items
+    {
+        double oldTotal = orderToChange.OrderTotal;
+
+        // Change quantity
+        Console.Write("Select item number to modify: ");
+        int index = Convert.ToInt32(Console.ReadLine()) - 1;
+
+        Console.Write("Enter new quantity (0 to remove): ");
+        int newQty = Convert.ToInt32(Console.ReadLine());
+
+        if (newQty == 0)
+        {
+            orderToChange.OrderedFoodItems.RemoveAt(index);
+        }
+        else
+        {
+            orderToChange.OrderedFoodItems[index].QtyOrdered = newQty;
+            orderToChange.OrderedFoodItems[index].SubTotal = newQty * orderToChange.OrderedFoodItems[index].ItemPrice;
+        }
+
+        // Recalculate total
+        double newTotal = 0;
+        foreach (var i in orderToChange.OrderedFoodItems)
+        {
+            newTotal += i.SubTotal;
+        }
+        double deliveryFee = 5.00;
+        orderToChange.OrderTotal = newTotal + deliveryFee;
+
+        Console.WriteLine($"\nOrder {orderToChange.OrderId} updated. New Total: ${orderToChange.OrderTotal:F2}");
+    }
+
+    else if (choice == 2) // Address
+    {
+        Console.Write("Enter new address: ");
+        orderToChange.DeliveryAddress = Console.ReadLine();
+
+        Console.WriteLine($"\nOrder {orderToChange.OrderId} updated. New Address: {orderToChange.DeliveryAddress}");
+    }
+
+    else if (choice == 3) // Delivery Time
+    {
+        Console.Write("Enter new Delivery Time (hh:mm): ");
+        string newTime = Console.ReadLine();
+
+        DateTime newDateTime = DateTime.ParseExact(orderToChange.DeliveryDateTime.ToString("dd/MM/yyyy") + " " + newTime, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture);
+
+        orderToChange.DeliveryDateTime = newDateTime;
+
+        Console.WriteLine($"\nOrder {orderToChange.OrderId} updated. New Delivery Time: {newTime}");
+    }
+
+    else
+    {
+        Console.WriteLine("Invalid choice");
+        return;
+    }
+
+    //Console.WriteLine("\nUpdated Order Details");
+    //Console.WriteLine("=====================");
+    //Console.WriteLine($"Order ID: {orderToChange.OrderId}");
+    //Console.WriteLine($"Total: ${orderToChange.OrderTotal:F2}");
+    //Console.WriteLine($"Delivery: {orderToChange.DeliveryDateTime:d/M/yyyy HH:mm}");
+    //Console.WriteLine($"Address: {orderToChange.DeliveryAddress}");
+}
+
+modifyOrder();
 
 
 
