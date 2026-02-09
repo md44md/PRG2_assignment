@@ -504,127 +504,12 @@ void createNewOrder()
     Console.WriteLine($"Order {newOrder.OrderId} created successfully! Status: Pending");
 }
 
-createNewOrder();
+//createNewOrder();
 
 
-//foreach (Restaurant r in restaurantList)
-//{
-//    foreach (Order o in r.OrderList)
-//    {
-//        Console.WriteLine(o.OrderId);
-//        o.DisplayOrderedFoodItems();
-//    }
-//}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// -------------------------------------------------------------------------------------------------------------------------------
 
 // Feature 6
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
