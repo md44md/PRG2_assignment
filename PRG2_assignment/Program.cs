@@ -252,98 +252,6 @@ void listAllOrders()
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // -------------------------------------------------------------------------------------------------------------------------------
 
 // Feature 5
@@ -576,100 +484,142 @@ void createNewOrder()
 
 // Feature 6
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// Stack for refunds
+Stack<Order> refundStack = new Stack<Order>();
+
+void processOrder()
+{
+    Console.WriteLine("Process Order");
+    Console.WriteLine("=============");
+    Console.Write("Enter Restaurant ID: ");
+    string restaurantId = Console.ReadLine().ToUpper();
+
+    // Find restaurant
+    Restaurant restaurant = null;
+    foreach (Restaurant r in restaurantList)
+    {
+        if (r.RestaurantId == restaurantId)
+        {
+            restaurant = r;
+            break;
+        }
+    }
+
+    if (restaurant == null)
+    {
+        Console.WriteLine("Restaurant ID not found.");
+        return;
+    }
+
+    if (restaurant.OrderList.Count == 0)
+    {
+        Console.WriteLine("No orders in queue for this restaurant.");
+        return;
+    }
+
+    // Create a temporary queue to process orders
+    Queue<Order> tempQueue = new Queue<Order>();
+    bool allProcessed = false;
+
+    while (restaurant.OrderList.Count > 0 && !allProcessed)
+    {
+        Order order = restaurant.OrderList.Dequeue();
+
+        // Display order details
+        Console.WriteLine($"\nOrder {order.OrderId}:");
+        Console.WriteLine($"Customer: {order.Customer.CustomerName}");
+        Console.WriteLine("Ordered Items:");
+        foreach (var item in order.OrderedFoodItems)
+        {
+            Console.WriteLine($"{item.ItemName} - {item.QtyOrdered}");
+        }
+        Console.WriteLine($"Delivery date/time: {order.DeliveryDateTime:dd/MM/yyyy HH:mm}");
+        Console.WriteLine($"Total Amount: ${order.OrderTotal:F2}");
+        Console.WriteLine($"Order Status: {order.OrderStatus}");
+
+        Console.Write("[C]onfirm / [R]eject / [S]kip / [D]eliver: ");
+        string choice = Console.ReadLine().ToUpper();
+
+        switch (choice)
+        {
+            case "C":
+                if (order.OrderStatus == "Pending")
+                {
+                    order.OrderStatus = "Preparing";
+                    Console.WriteLine($"Order {order.OrderId} confirmed. Status: Preparing");
+                }
+                else
+                {
+                    Console.WriteLine($"Cannot confirm. Order status is {order.OrderStatus}.");
+                }
+                tempQueue.Enqueue(order);
+                break;
+
+            case "R":
+                if (order.OrderStatus == "Pending")
+                {
+                    order.OrderStatus = "Rejected";
+                    refundStack.Push(order);
+                    Console.WriteLine($"Order {order.OrderId} rejected. Refund of ${order.OrderTotal:F2} processed.");
+                }
+                else
+                {
+                    Console.WriteLine($"Cannot reject. Order status is {order.OrderStatus}.");
+                }
+                tempQueue.Enqueue(order);
+                break;
+
+            case "S":
+                if (order.OrderStatus == "Cancelled")
+                {
+                    Console.WriteLine($"Skipping cancelled order {order.OrderId}.");
+                }
+                else
+                {
+                    Console.WriteLine($"Order {order.OrderId} skipped.");
+                }
+                tempQueue.Enqueue(order);
+                break;
+
+            case "D":
+                if (order.OrderStatus == "Preparing")
+                {
+                    order.OrderStatus = "Delivered";
+                    Console.WriteLine($"Order {order.OrderId} delivered. Status: Delivered");
+                }
+                else
+                {
+                    Console.WriteLine($"Cannot deliver. Order status is {order.OrderStatus}.");
+                }
+                tempQueue.Enqueue(order);
+                break;
+
+            default:
+                Console.WriteLine("Invalid choice. Order returned to queue.");
+                tempQueue.Enqueue(order);
+                break;
+        }
+
+        Console.Write("\nContinue processing? [Y/N]: ");
+        string continueChoice = Console.ReadLine().ToUpper();
+        if (continueChoice == "N")
+        {
+            allProcessed = true;
+        }
+    }
+
+    // Return remaining orders to the queue
+    while (restaurant.OrderList.Count > 0)
+    {
+        tempQueue.Enqueue(restaurant.OrderList.Dequeue());
+    }
+
+    // Restore all orders back to the restaurant queue
+    while (tempQueue.Count > 0)
+    {
+        restaurant.OrderList.Enqueue(tempQueue.Dequeue());
+    }
+}
 
 
 // -------------------------------------------------------------------------------------------------------------------------------
