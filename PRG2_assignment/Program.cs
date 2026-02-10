@@ -5,7 +5,7 @@
 //==========================================================
 
 // student A - KZ: 1✓,4,6,8
-// student B - Muhd: 2✓,3✓,5,7
+// student B - Muhd: 2✓,3✓,5✓,7✓
 
 using PRG2_assignment;
 using System.Globalization;
@@ -33,7 +33,8 @@ for (int i = 1; i < restaurantLines.Length; i++)
     resObj.AddMenu(menu);
 }
 
-// Create foodItems, add foodItems to restaurant main menu
+// Create foodItems, add foddItems to foodItemList add foodItems to restaurant main menu
+List<FoodItem> foodItemList = new List<FoodItem>();
 string[] fooditemsLines = File.ReadAllLines("data/fooditems.csv");
 
 for (int i = 1; i < fooditemsLines.Length; i++)
@@ -47,6 +48,7 @@ for (int i = 1; i < fooditemsLines.Length; i++)
     double price = Convert.ToDouble(data[3]);
 
     FoodItem foodObj = new FoodItem(itemName, desc, price, "");
+    foodItemList.Add(foodObj);
 
     Restaurant restaurant = null;
 
@@ -85,7 +87,8 @@ for (int i = 1;i < customerLines.Length; i++)
     customerList.Add(custObj);
 }
 
-// Create orders
+// Create orders, add orders to orderlist, add orders to customers and restaurant
+List<Order> orderList = new List<Order>();
 string[] orderLines = File.ReadAllLines("data/orders.csv");
 
 for (int i = 1; i < orderLines.Length; i++)
@@ -148,6 +151,7 @@ for (int i = 1; i < orderLines.Length; i++)
     }
 
     Order orderObj = new Order(orderID, createdDateTime, totalAmount, status, deliveryDateTime, deliveryAddress, "Credit Card", false, orderCustomer, orderRestaurant, null);
+    orderList.Add(orderObj);
 
     // Create orderedItems
     string itemsStr = fields[9]; // full Items string
@@ -504,8 +508,6 @@ void createNewOrder()
     Console.WriteLine($"Order {newOrder.OrderId} created successfully! Status: Pending");
 }
 
-//createNewOrder();
-
 
 // -------------------------------------------------------------------------------------------------------------------------------
 
@@ -595,13 +597,158 @@ void createNewOrder()
 
 
 
-
+// -------------------------------------------------------------------------------------------------------------------------------
 
 // Feature 7
 
+void modifyOrder()
+{
+    Console.WriteLine("Modify Order\r\n============");
 
+    // Input customer email and search for email
+    Console.Write("Enter Customer Email: ");
+    string emailAddress = Console.ReadLine();
 
+    Customer orderCustomer = new Customer();
+    foreach (Customer c in customerList)
+    {
+        if (c.EmailAddress == emailAddress)
+        {
+            orderCustomer = c;
+            break;
+        }
+    }
+    if (orderCustomer == null)
+    {
+        Console.WriteLine("Customer email does not exist");
+        return;
+    }
 
+    // Add pending orders to a list and display list
+    List<Order> pendingOrders = new List<Order>();
+    foreach (Order o in orderCustomer.Orders)
+    {
+        if (o.OrderStatus == "Pending")
+        {
+            pendingOrders.Add(o);
+        }
+    }
+
+    if (pendingOrders.Count == 0)
+    {
+        Console.WriteLine("No pending orders.");
+        return;
+    }
+
+    Console.WriteLine("\nPending Orders:");
+    foreach (Order o in pendingOrders)
+    {
+        Console.WriteLine(o.OrderId);
+    }
+
+    // Prompt for order ID
+    Console.Write("Enter Order ID: ");
+    int orderId = Convert.ToInt32(Console.ReadLine());
+
+    Order orderToChange = null;
+    foreach (Order o in pendingOrders)
+    {
+        if (o.OrderId == orderId)
+        {
+            orderToChange = o;
+            break;
+        }
+    }
+    if (orderToChange == null)
+    {
+        Console.WriteLine("Invalid Order ID.");
+        return;
+    }
+
+    // Display order item info
+    Console.WriteLine("Order Items:");
+    for (int i = 0; i < orderToChange.OrderedFoodItems.Count; i++)
+    {
+        var item = orderToChange.OrderedFoodItems[i];
+        Console.WriteLine($"{i + 1}. {item.ItemName} - {item.QtyOrdered}");
+    }
+
+    Console.WriteLine("Address:");
+    Console.WriteLine(orderToChange.DeliveryAddress);
+
+    Console.WriteLine("Delivery Date/Time:");
+    Console.WriteLine(orderToChange.DeliveryDateTime.ToString("d/M/yyyy, HH:mm"));
+
+    // Prompt modification
+    Console.Write("\nModify: [1] Items [2] Address [3] Delivery Time: ");
+    int choice = Convert.ToInt32(Console.ReadLine());
+
+    if (choice == 1) // Items
+    {
+        double oldTotal = orderToChange.OrderTotal;
+
+        // Change quantity
+        Console.Write("Select item number to modify: ");
+        int index = Convert.ToInt32(Console.ReadLine()) - 1;
+
+        Console.Write("Enter new quantity (0 to remove): ");
+        int newQty = Convert.ToInt32(Console.ReadLine());
+
+        if (newQty == 0)
+        {
+            orderToChange.OrderedFoodItems.RemoveAt(index);
+        }
+        else
+        {
+            orderToChange.OrderedFoodItems[index].QtyOrdered = newQty;
+            orderToChange.OrderedFoodItems[index].SubTotal = newQty * orderToChange.OrderedFoodItems[index].ItemPrice;
+        }
+
+        // Recalculate total
+        double newTotal = 0;
+        foreach (var i in orderToChange.OrderedFoodItems)
+        {
+            newTotal += i.SubTotal;
+        }
+        double deliveryFee = 5.00;
+        orderToChange.OrderTotal = newTotal + deliveryFee;
+
+        Console.WriteLine($"\nOrder {orderToChange.OrderId} updated. New Total: ${orderToChange.OrderTotal:F2}");
+    }
+
+    else if (choice == 2) // Address
+    {
+        Console.Write("Enter new address: ");
+        orderToChange.DeliveryAddress = Console.ReadLine();
+
+        Console.WriteLine($"\nOrder {orderToChange.OrderId} updated. New Address: {orderToChange.DeliveryAddress}");
+    }
+
+    else if (choice == 3) // Delivery Time
+    {
+        Console.Write("Enter new Delivery Time (hh:mm): ");
+        string newTime = Console.ReadLine();
+
+        DateTime newDateTime = DateTime.ParseExact(orderToChange.DeliveryDateTime.ToString("dd/MM/yyyy") + " " + newTime, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture);
+
+        orderToChange.DeliveryDateTime = newDateTime;
+
+        Console.WriteLine($"\nOrder {orderToChange.OrderId} updated. New Delivery Time: {newTime}");
+    }
+
+    else
+    {
+        Console.WriteLine("Invalid choice");
+        return;
+    }
+
+    //Console.WriteLine("\nUpdated Order Details");
+    //Console.WriteLine("=====================");
+    //Console.WriteLine($"Order ID: {orderToChange.OrderId}");
+    //Console.WriteLine($"Total: ${orderToChange.OrderTotal:F2}");
+    //Console.WriteLine($"Delivery: {orderToChange.DeliveryDateTime:d/M/yyyy HH:mm}");
+    //Console.WriteLine($"Address: {orderToChange.DeliveryAddress}");
+}
 
 
 
@@ -700,3 +847,114 @@ void createNewOrder()
 // Feature 8
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Program
+
+Console.WriteLine("Welcome to the Gruberoo Food Delivery System");
+Console.WriteLine($"{restaurantList.Count()} restaurants loaded!");
+Console.WriteLine($"{foodItemList.Count()} food items loaded!");
+Console.WriteLine($"{customerList.Count()} restaurants loaded!");
+Console.WriteLine($"{orderList.Count()} orders loaded!");
+
+while (true)
+{
+    Console.WriteLine("\n===== Gruberoo Food Delivery System =====");
+    Console.WriteLine("1. List all restaurants and menu items");
+    Console.WriteLine("2. List all orders");
+    Console.WriteLine("3. Create a new order");
+    Console.WriteLine("4. Process an order");
+    Console.WriteLine("5. Modify an existing order");
+    Console.WriteLine("6. Delete an existing order");
+    Console.WriteLine("0. Exit");
+
+    Console.Write("Enter your choice: ");
+    int choice = Convert.ToInt32(Console.ReadLine());
+
+    Console.WriteLine(); //break
+    if (choice == 1)
+    {
+        listRestaurantsMenuItems();
+    }
+    else if (choice == 2)
+    {
+
+    }
+    else if (choice == 3)
+    {
+        createNewOrder();
+    }
+    else if (choice == 4)
+    {
+
+    }
+    else if (choice == 5)
+    {
+        modifyOrder();
+    }
+    else if (choice == 6)
+    {
+
+    }
+    else if (choice == 0)
+    {
+        Console.WriteLine("Exitting...");
+        return;
+    }
+    else
+    {
+        Console.WriteLine("Invalid choice.");
+    }
+}
