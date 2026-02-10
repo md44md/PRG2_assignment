@@ -898,6 +898,83 @@ void deleteOrder()
         Console.WriteLine("Deletion cancelled.");
     }
 }
+// -------------------------------------------------------------------------------------------------------------------------------
+
+// Save queue and stack on exit (Basic Feature Requirement)
+void SaveDataOnExit()
+{
+    // Save queue to queue.csv
+    using (StreamWriter writer = new StreamWriter("data/queue.csv"))
+    {
+        writer.WriteLine("OrderId,CustomerEmail,RestaurantId,DeliveryDate,DeliveryTime,DeliveryAddress,CreatedDateTime,TotalAmount,Status,Items");
+
+        foreach (Restaurant restaurant in restaurantList)
+        {
+            foreach (Order order in restaurant.OrderList)
+            {
+                string itemsStr = "";
+                for (int i = 0; i < order.OrderedFoodItems.Count; i++)
+                {
+                    OrderedFoodItem item = order.OrderedFoodItems[i];
+                    itemsStr += $"{item.ItemName}, {item.QtyOrdered}";
+                    if (i < order.OrderedFoodItems.Count - 1)
+                        itemsStr += "|";
+                }
+                itemsStr = $"\"{itemsStr}\"";
+
+                writer.WriteLine(
+                    $"{order.OrderId}," +
+                    $"{order.Customer.EmailAddress}," +
+                    $"{order.Restaurant.RestaurantId}," +
+                    $"{order.DeliveryDateTime:dd/MM/yyyy}," +
+                    $"{order.DeliveryDateTime:HH:mm}," +
+                    $"{order.DeliveryAddress}," +
+                    $"{order.OrderDateTime:dd/MM/yyyy HH:mm}," +
+                    $"{order.OrderTotal}," +
+                    $"{order.OrderStatus}," +
+                    $"{itemsStr}"
+                );
+            }
+        }
+    }
+
+    // Save refund stack to stack.csv
+    using (StreamWriter writer = new StreamWriter("data/stack.csv"))
+    {
+        writer.WriteLine("OrderId,CustomerEmail,RestaurantId,DeliveryDate,DeliveryTime,DeliveryAddress,CreatedDateTime,TotalAmount,Status,Items");
+
+        Order[] refundArray = refundStack.ToArray();
+
+        foreach (Order order in refundArray)
+        {
+            string itemsStr = "";
+            for (int i = 0; i < order.OrderedFoodItems.Count; i++)
+            {
+                OrderedFoodItem item = order.OrderedFoodItems[i];
+                itemsStr += $"{item.ItemName}, {item.QtyOrdered}";
+                if (i < order.OrderedFoodItems.Count - 1)
+                    itemsStr += "|";
+            }
+            itemsStr = $"\"{itemsStr}\"";
+
+            writer.WriteLine(
+                $"{order.OrderId}," +
+                $"{order.Customer.EmailAddress}," +
+                $"{order.Restaurant.RestaurantId}," +
+                $"{order.DeliveryDateTime:dd/MM/yyyy}," +
+                $"{order.DeliveryDateTime:HH:mm}," +
+                $"{order.DeliveryAddress}," +
+                $"{order.OrderDateTime:dd/MM/yyyy HH:mm}," +
+                $"{order.OrderTotal}," +
+                $"{order.OrderStatus}," +
+                $"{itemsStr}"
+            );
+        }
+    }
+
+    Console.WriteLine("Queue saved to queue.csv");
+    Console.WriteLine("Refund stack saved to stack.csv");
+}
 
 
 // -------------------------------------------------------------------------------------------------------------------------------
@@ -982,82 +1059,85 @@ void ProcessPendingOrders(List<Order> orderList)
     Console.WriteLine($"Automatically processed percentage: {percentage:F2}%");
 }
 
-// Save queue and stack to files on exit
-void SaveDataOnExit()
+
+// -------------------------------------------------------------------------------------------------------------------------------
+
+// Advanced Feature B - Display Total Order Amount
+void DisplayTotalOrderAmount()
 {
-    // Save queue to queue.csv
-    using (StreamWriter writer = new StreamWriter("data/queue.csv"))
+    Console.WriteLine("Total Order Amount Report");
+    Console.WriteLine("=========================\n");
+
+    double grandTotalOrders = 0;
+    double grandTotalRefunds = 0;
+    const double DELIVERY_FEE = 5.00;
+    const double GRUBEROO_COMMISSION = 0.30; // 30%
+
+    // Process each restaurant
+    foreach (Restaurant restaurant in restaurantList)
     {
-        writer.WriteLine("OrderId,CustomerEmail,RestaurantId,DeliveryDate,DeliveryTime,DeliveryAddress,CreatedDateTime,TotalAmount,Status,Items");
+        double restaurantTotal = 0;
+        int deliveredCount = 0;
 
-        foreach (Restaurant restaurant in restaurantList)
+        // Get all delivered orders for this restaurant
+        foreach (Customer customer in customerList)
         {
-            foreach (Order order in restaurant.OrderList)
+            foreach (Order order in customer.Orders)
             {
-                string itemsStr = "";
-                for (int i = 0; i < order.OrderedFoodItems.Count; i++)
+                if (order.Restaurant.RestaurantId == restaurant.RestaurantId &&
+                    order.OrderStatus == "Delivered")
                 {
-                    OrderedFoodItem item = order.OrderedFoodItems[i];
-                    itemsStr += $"{item.ItemName}, {item.QtyOrdered}";
-                    if (i < order.OrderedFoodItems.Count - 1)
-                        itemsStr += "|";
+                    // Subtract delivery fee from order total
+                    double orderAmount = order.OrderTotal - DELIVERY_FEE;
+                    restaurantTotal += orderAmount;
+                    deliveredCount++;
                 }
-                itemsStr = $"\"{itemsStr}\"";
-
-                writer.WriteLine(
-                    $"{order.OrderId}," +
-                    $"{order.Customer.EmailAddress}," +
-                    $"{order.Restaurant.RestaurantId}," +
-                    $"{order.DeliveryDateTime:dd/MM/yyyy}," +
-                    $"{order.DeliveryDateTime:HH:mm}," +
-                    $"{order.DeliveryAddress}," +
-                    $"{order.OrderDateTime:dd/MM/yyyy HH:mm}," +
-                    $"{order.OrderTotal}," +
-                    $"{order.OrderStatus}," +
-                    $"{itemsStr}"
-                );
             }
+        }
+
+        if (deliveredCount > 0)
+        {
+            Console.WriteLine($"Restaurant: {restaurant.RestaurantName} ({restaurant.RestaurantId})");
+            Console.WriteLine($"  Delivered Orders: {deliveredCount}");
+            Console.WriteLine($"  Total Order Amount: ${restaurantTotal:F2}");
+            Console.WriteLine();
+            grandTotalOrders += restaurantTotal;
         }
     }
 
-    // Save refund stack to stack.csv
-    using (StreamWriter writer = new StreamWriter("data/stack.csv"))
+    // Calculate total refunds from refund stack
+    Console.WriteLine("Refunded Orders");
+    Console.WriteLine("---------------");
+
+    if (refundStack.Count > 0)
     {
-        writer.WriteLine("OrderId,CustomerEmail,RestaurantId,DeliveryDate,DeliveryTime,DeliveryAddress,CreatedDateTime,TotalAmount,Status,Items");
-
-        // Convert stack to array to preserve order
         Order[] refundArray = refundStack.ToArray();
-
         foreach (Order order in refundArray)
         {
-            string itemsStr = "";
-            for (int i = 0; i < order.OrderedFoodItems.Count; i++)
-            {
-                OrderedFoodItem item = order.OrderedFoodItems[i];
-                itemsStr += $"{item.ItemName}, {item.QtyOrdered}";
-                if (i < order.OrderedFoodItems.Count - 1)
-                    itemsStr += "|";
-            }
-            itemsStr = $"\"{itemsStr}\"";
-
-            writer.WriteLine(
-                $"{order.OrderId}," +
-                $"{order.Customer.EmailAddress}," +
-                $"{order.Restaurant.RestaurantId}," +
-                $"{order.DeliveryDateTime:dd/MM/yyyy}," +
-                $"{order.DeliveryDateTime:HH:mm}," +
-                $"{order.DeliveryAddress}," +
-                $"{order.OrderDateTime:dd/MM/yyyy HH:mm}," +
-                $"{order.OrderTotal}," +
-                $"{order.OrderStatus}," +
-                $"{itemsStr}"
-            );
+            grandTotalRefunds += order.OrderTotal;
         }
+        Console.WriteLine($"  Total Refunds: ${grandTotalRefunds:F2}");
+        Console.WriteLine($"  Refunded Orders Count: {refundStack.Count}");
     }
+    else
+    {
+        Console.WriteLine("  No refunded orders");
+    }
+    Console.WriteLine();
 
-    Console.WriteLine("Queue saved to queue.csv");
-    Console.WriteLine("Refund stack saved to stack.csv");
+    // Display summary
+    Console.WriteLine("Summary");
+    Console.WriteLine("-------");
+    Console.WriteLine($"Total Order Amount (Delivered): ${grandTotalOrders:F2}");
+    Console.WriteLine($"Total Refunds: ${grandTotalRefunds:F2}");
+    Console.WriteLine($"Net Revenue: ${(grandTotalOrders - grandTotalRefunds):F2}");
+
+    // Calculate Gruberoo's earnings (30% commission on net revenue)
+    double gruberooEarnings = (grandTotalOrders - grandTotalRefunds) * GRUBEROO_COMMISSION;
+    Console.WriteLine($"Gruberoo Commission (30%): ${gruberooEarnings:F2}");
+    Console.WriteLine($"Restaurant Share (70%): ${((grandTotalOrders - grandTotalRefunds) - gruberooEarnings):F2}");
 }
+
 
 // -------------------------------------------------------------------------------------------------------------------------------
 
@@ -1079,6 +1159,7 @@ while (true)
     Console.WriteLine("5. Modify an existing order");
     Console.WriteLine("6. Delete an existing order");
     Console.WriteLine("7. Bulk process unprocessed orders for a current day");
+    Console.WriteLine("8. Display total order amount");
     Console.WriteLine("0. Exit");
 
     Console.Write("Enter your choice: ");
@@ -1114,6 +1195,10 @@ while (true)
         else if (choice == 7)
         {
             ProcessPendingOrders(orderList);
+        }
+        else if (choice == 8)
+        {
+            DisplayTotalOrderAmount();
         }
         else if (choice == 0)
         {
