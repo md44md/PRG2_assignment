@@ -4,8 +4,8 @@
 // Partner Name : 
 //==========================================================
 
-// student A - KZ: 1✓,4,6,8, B
-// student B - Muhd: 2✓,3✓,5✓,7✓, A
+// student A - KZ: 1,4,6,8, B
+// student B - Muhd: 2,3,5,7, A
 
 using PRG2_assignment;
 using System.Globalization;
@@ -983,7 +983,7 @@ void SaveDataOnExit()
 
 void ProcessPendingOrders(List<Order> orderList)
 {
-    // Set current datetime
+    // Set current datetime, set it to todays time if there is no user input.
     DateTime processDateTime;
 
     while (true)
