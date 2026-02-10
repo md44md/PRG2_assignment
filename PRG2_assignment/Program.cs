@@ -5,7 +5,7 @@
 //==========================================================
 
 // student A - KZ: 1✓,4,6,8
-// student B - Muhd: 2✓,3✓,5✓,7
+// student B - Muhd: 2✓,3✓,5✓,7✓
 
 using PRG2_assignment;
 using System.Globalization;
@@ -33,7 +33,8 @@ for (int i = 1; i < restaurantLines.Length; i++)
     resObj.AddMenu(menu);
 }
 
-// Create foodItems, add foodItems to restaurant main menu
+// Create foodItems, add foddItems to foodItemList add foodItems to restaurant main menu
+List<FoodItem> foodItemList = new List<FoodItem>();
 string[] fooditemsLines = File.ReadAllLines("data/fooditems.csv");
 
 for (int i = 1; i < fooditemsLines.Length; i++)
@@ -47,6 +48,7 @@ for (int i = 1; i < fooditemsLines.Length; i++)
     double price = Convert.ToDouble(data[3]);
 
     FoodItem foodObj = new FoodItem(itemName, desc, price, "");
+    foodItemList.Add(foodObj);
 
     Restaurant restaurant = null;
 
@@ -85,7 +87,8 @@ for (int i = 1;i < customerLines.Length; i++)
     customerList.Add(custObj);
 }
 
-// Create orders
+// Create orders, add orders to orderlist, add orders to customers and restaurant
+List<Order> orderList = new List<Order>();
 string[] orderLines = File.ReadAllLines("data/orders.csv");
 
 for (int i = 1; i < orderLines.Length; i++)
@@ -148,6 +151,7 @@ for (int i = 1; i < orderLines.Length; i++)
     }
 
     Order orderObj = new Order(orderID, createdDateTime, totalAmount, status, deliveryDateTime, deliveryAddress, "Credit Card", false, orderCustomer, orderRestaurant, null);
+    orderList.Add(orderObj);
 
     // Create orderedItems
     string itemsStr = fields[9]; // full Items string
@@ -504,8 +508,6 @@ void createNewOrder()
     Console.WriteLine($"Order {newOrder.OrderId} created successfully! Status: Pending");
 }
 
-//createNewOrder();
-
 
 // -------------------------------------------------------------------------------------------------------------------------------
 
@@ -748,8 +750,6 @@ void modifyOrder()
     //Console.WriteLine($"Address: {orderToChange.DeliveryAddress}");
 }
 
-modifyOrder();
-
 
 
 
@@ -847,3 +847,114 @@ modifyOrder();
 // Feature 8
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Program
+
+Console.WriteLine("Welcome to the Gruberoo Food Delivery System");
+Console.WriteLine($"{restaurantList.Count()} restaurants loaded!");
+Console.WriteLine($"{foodItemList.Count()} food items loaded!");
+Console.WriteLine($"{customerList.Count()} restaurants loaded!");
+Console.WriteLine($"{orderList.Count()} orders loaded!");
+
+while (true)
+{
+    Console.WriteLine("\n===== Gruberoo Food Delivery System =====");
+    Console.WriteLine("1. List all restaurants and menu items");
+    Console.WriteLine("2. List all orders");
+    Console.WriteLine("3. Create a new order");
+    Console.WriteLine("4. Process an order");
+    Console.WriteLine("5. Modify an existing order");
+    Console.WriteLine("6. Delete an existing order");
+    Console.WriteLine("0. Exit");
+
+    Console.Write("Enter your choice: ");
+    int choice = Convert.ToInt32(Console.ReadLine());
+
+    Console.WriteLine(); //break
+    if (choice == 1)
+    {
+        listRestaurantsMenuItems();
+    }
+    else if (choice == 2)
+    {
+
+    }
+    else if (choice == 3)
+    {
+        createNewOrder();
+    }
+    else if (choice == 4)
+    {
+
+    }
+    else if (choice == 5)
+    {
+        modifyOrder();
+    }
+    else if (choice == 6)
+    {
+
+    }
+    else if (choice == 0)
+    {
+        Console.WriteLine("Exitting...");
+        return;
+    }
+    else
+    {
+        Console.WriteLine("Invalid choice.");
+    }
+}
