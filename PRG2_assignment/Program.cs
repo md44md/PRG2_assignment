@@ -224,7 +224,32 @@ void listRestaurantsMenuItems()
 // -------------------------------------------------------------------------------------------------------------------------------
 
 // Feature 4
+void listAllOrders()
+{
+    Console.WriteLine("All Orders");
+    Console.WriteLine("==========");
+    Console.WriteLine($"{"Order ID",-10}{"Customer",-20}{"Restaurant",-20}{"Delivery Date/Time",-20}{"Amount",-10}{"Status",-15}");
+    Console.WriteLine($"{"--------",-10}{"----------",-20}{"-------------",-20}{"------------------",-20}{"------",-10}{"---------",-15}");
 
+    // Collect all orders from all customers
+    List<Order> allOrders = new List<Order>();
+    foreach (Customer customer in customerList)
+    {
+        foreach (Order order in customer.Orders)
+        {
+            allOrders.Add(order);
+        }
+    }
+
+    // Sort by OrderId
+    allOrders.Sort((a, b) => a.OrderId.CompareTo(b.OrderId));
+
+    // Display all orders
+    foreach (Order order in allOrders)
+    {
+        Console.WriteLine($"{order.OrderId,-10}{order.Customer.CustomerName,-20}{order.Restaurant.RestaurantName,-20}{order.DeliveryDateTime.ToString("dd/MM/yyyy HH:mm"),-20}${order.OrderTotal,-9:F2}{order.OrderStatus,-15}");
+    }
+}
 
 
 
