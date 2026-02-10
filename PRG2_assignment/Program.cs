@@ -799,99 +799,105 @@ void modifyOrder()
 // -------------------------------------------------------------------------------------------------------------------------------
 
 // Feature 8
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void deleteOrder()
+{
+    Console.WriteLine("Delete Order");
+    Console.WriteLine("============");
+    Console.Write("Enter Customer Email: ");
+    string email = Console.ReadLine();
+
+    // Find customer
+    Customer customer = null;
+    foreach (Customer c in customerList)
+    {
+        if (c.EmailAddress == email)
+        {
+            customer = c;
+            break;
+        }
+    }
+
+    if (customer == null)
+    {
+        Console.WriteLine("Customer email not found.");
+        return;
+    }
+
+    // Display pending orders
+    List<Order> pendingOrders = new List<Order>();
+    foreach (Order order in customer.Orders)
+    {
+        if (order.OrderStatus == "Pending")
+        {
+            pendingOrders.Add(order);
+        }
+    }
+
+    if (pendingOrders.Count == 0)
+    {
+        Console.WriteLine("No pending orders found for this customer.");
+        return;
+    }
+
+    Console.WriteLine("Pending Orders:");
+    foreach (Order order in pendingOrders)
+    {
+        Console.WriteLine(order.OrderId);
+    }
+
+    Console.Write("Enter Order ID: ");
+    if (!int.TryParse(Console.ReadLine(), out int orderId))
+    {
+        Console.WriteLine("Invalid Order ID.");
+        return;
+    }
+
+    // Find the order
+    Order orderToDelete = null;
+    foreach (Order order in pendingOrders)
+    {
+        if (order.OrderId == orderId)
+        {
+            orderToDelete = order;
+            break;
+        }
+    }
+
+    if (orderToDelete == null)
+    {
+        Console.WriteLine("Order ID not found in pending orders.");
+        return;
+    }
+
+    // Display order details
+    Console.WriteLine($"Customer: {orderToDelete.Customer.CustomerName}");
+    Console.WriteLine("Ordered Items:");
+    foreach (var item in orderToDelete.OrderedFoodItems)
+    {
+        Console.WriteLine($"{item.ItemName} - {item.QtyOrdered}");
+    }
+    Console.WriteLine($"Delivery date/time: {orderToDelete.DeliveryDateTime:dd/MM/yyyy HH:mm}");
+    Console.WriteLine($"Total Amount: ${orderToDelete.OrderTotal:F2}");
+    Console.WriteLine($"Order Status: {orderToDelete.OrderStatus}");
+
+    Console.Write("Confirm deletion? [Y/N]: ");
+    string confirm = Console.ReadLine().ToUpper();
+
+    if (confirm == "Y")
+    {
+        // Update order status to Cancelled
+        orderToDelete.OrderStatus = "Cancelled";
+
+        // Add to refund stack
+        refundStack.Push(orderToDelete);
+
+        Console.WriteLine($"Order {orderToDelete.OrderId} cancelled. Refund of ${orderToDelete.OrderTotal:F2} processed.");
+    }
+    else
+    {
+        Console.WriteLine("Deletion cancelled.");
+    }
+}
 
 
 // -------------------------------------------------------------------------------------------------------------------------------
@@ -1011,7 +1017,7 @@ while (true)
         }
         else if (choice == 2)
         {
-
+            listAllOrders();
         }
         else if (choice == 3)
         {
@@ -1019,7 +1025,7 @@ while (true)
         }
         else if (choice == 4)
         {
-
+            processOrder();
         }
         else if (choice == 5)
         {
@@ -1027,7 +1033,7 @@ while (true)
         }
         else if (choice == 6)
         {
-
+            deleteOrder();
         }
         else if (choice == 7)
         {
@@ -1035,8 +1041,9 @@ while (true)
         }
         else if (choice == 0)
         {
+            SaveDataOnExit();
             Console.WriteLine("Exitting...");
-            return;
+            return; 
         }
         else
         {
