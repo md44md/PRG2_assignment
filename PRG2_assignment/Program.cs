@@ -982,6 +982,82 @@ void ProcessPendingOrders(List<Order> orderList)
     Console.WriteLine($"Automatically processed percentage: {percentage:F2}%");
 }
 
+// Save queue and stack to files on exit
+void SaveDataOnExit()
+{
+    // Save queue to queue.csv
+    using (StreamWriter writer = new StreamWriter("data/queue.csv"))
+    {
+        writer.WriteLine("OrderId,CustomerEmail,RestaurantId,DeliveryDate,DeliveryTime,DeliveryAddress,CreatedDateTime,TotalAmount,Status,Items");
+
+        foreach (Restaurant restaurant in restaurantList)
+        {
+            foreach (Order order in restaurant.OrderList)
+            {
+                string itemsStr = "";
+                for (int i = 0; i < order.OrderedFoodItems.Count; i++)
+                {
+                    OrderedFoodItem item = order.OrderedFoodItems[i];
+                    itemsStr += $"{item.ItemName}, {item.QtyOrdered}";
+                    if (i < order.OrderedFoodItems.Count - 1)
+                        itemsStr += "|";
+                }
+                itemsStr = $"\"{itemsStr}\"";
+
+                writer.WriteLine(
+                    $"{order.OrderId}," +
+                    $"{order.Customer.EmailAddress}," +
+                    $"{order.Restaurant.RestaurantId}," +
+                    $"{order.DeliveryDateTime:dd/MM/yyyy}," +
+                    $"{order.DeliveryDateTime:HH:mm}," +
+                    $"{order.DeliveryAddress}," +
+                    $"{order.OrderDateTime:dd/MM/yyyy HH:mm}," +
+                    $"{order.OrderTotal}," +
+                    $"{order.OrderStatus}," +
+                    $"{itemsStr}"
+                );
+            }
+        }
+    }
+
+    // Save refund stack to stack.csv
+    using (StreamWriter writer = new StreamWriter("data/stack.csv"))
+    {
+        writer.WriteLine("OrderId,CustomerEmail,RestaurantId,DeliveryDate,DeliveryTime,DeliveryAddress,CreatedDateTime,TotalAmount,Status,Items");
+
+        // Convert stack to array to preserve order
+        Order[] refundArray = refundStack.ToArray();
+
+        foreach (Order order in refundArray)
+        {
+            string itemsStr = "";
+            for (int i = 0; i < order.OrderedFoodItems.Count; i++)
+            {
+                OrderedFoodItem item = order.OrderedFoodItems[i];
+                itemsStr += $"{item.ItemName}, {item.QtyOrdered}";
+                if (i < order.OrderedFoodItems.Count - 1)
+                    itemsStr += "|";
+            }
+            itemsStr = $"\"{itemsStr}\"";
+
+            writer.WriteLine(
+                $"{order.OrderId}," +
+                $"{order.Customer.EmailAddress}," +
+                $"{order.Restaurant.RestaurantId}," +
+                $"{order.DeliveryDateTime:dd/MM/yyyy}," +
+                $"{order.DeliveryDateTime:HH:mm}," +
+                $"{order.DeliveryAddress}," +
+                $"{order.OrderDateTime:dd/MM/yyyy HH:mm}," +
+                $"{order.OrderTotal}," +
+                $"{order.OrderStatus}," +
+                $"{itemsStr}"
+            );
+        }
+    }
+
+    Console.WriteLine("Queue saved to queue.csv");
+    Console.WriteLine("Refund stack saved to stack.csv");
+}
 
 // -------------------------------------------------------------------------------------------------------------------------------
 
