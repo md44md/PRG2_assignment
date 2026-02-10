@@ -4,12 +4,43 @@
 // Partner Name : 
 //==========================================================
 
-// student A - KZ: 1✓,4,6,8
-// student B - Muhd: 2✓,3✓,5✓,7✓
+// student A - KZ: 1✓,4,6,8, B
+// student B - Muhd: 2✓,3✓,5✓,7✓, A
 
 using PRG2_assignment;
 using System.Globalization;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+
+// Helper functions
+Customer lookupCustomer(List<Customer> customerList, string emailAddress)
+{
+    Customer orderCustomer = null;
+    foreach (Customer c in customerList)
+    {
+        if (c.EmailAddress == emailAddress)
+        {
+            orderCustomer = c;
+            break;
+        }
+    }
+    return orderCustomer;
+}
+
+Restaurant lookupRestaurant(List<Restaurant> restaurantList, string restaurantId)
+{
+    Restaurant orderRestaurant = null;
+    foreach (Restaurant r in restaurantList)
+    {
+        if (r.RestaurantId == restaurantId)
+        {
+            orderRestaurant = r;
+            break;
+        }
+    }
+    return orderRestaurant;
+}
+
+
+// -------------------------------------------------------------------------------------------------------------------------------
 
 // Feature 1
 
@@ -33,7 +64,7 @@ for (int i = 1; i < restaurantLines.Length; i++)
     resObj.AddMenu(menu);
 }
 
-// Create foodItems, add foddItems to foodItemList add foodItems to restaurant main menu
+// Create foodItems, add foodItems to foodItemList add foodItems to restaurant main menu
 List<FoodItem> foodItemList = new List<FoodItem>();
 string[] fooditemsLines = File.ReadAllLines("data/fooditems.csv");
 
@@ -50,16 +81,7 @@ for (int i = 1; i < fooditemsLines.Length; i++)
     FoodItem foodObj = new FoodItem(itemName, desc, price, "");
     foodItemList.Add(foodObj);
 
-    Restaurant restaurant = null;
-
-    foreach (Restaurant r in restaurantList)
-    {
-        if (r.RestaurantId == restaurantId)
-        {
-            restaurant = r;
-            break;
-        }
-    }
+    Restaurant restaurant = lookupRestaurant(restaurantList, restaurantId);
 
     if (restaurant != null)
     {
@@ -131,25 +153,11 @@ for (int i = 1; i < orderLines.Length; i++)
     string status = fields[8];
 
     // Match customer and restaurant with orders
-    Customer orderCustomer = null;
-    foreach (Customer c in customerList)
-    {
-        if (c.EmailAddress == customerEmail)
-        {
-            orderCustomer = c;
-            break;
-        }
-    }
-    Restaurant orderRestaurant = null;
-    foreach (Restaurant r in restaurantList)
-    {
-        if (r.RestaurantId == restaurantID)
-        {
-            orderRestaurant = r;
-            break;
-        }
-    }
+    Customer orderCustomer = lookupCustomer(customerList, customerEmail);
 
+    Restaurant orderRestaurant = lookupRestaurant(restaurantList, restaurantID);
+
+    // Create order object
     Order orderObj = new Order(orderID, createdDateTime, totalAmount, status, deliveryDateTime, deliveryAddress, "Credit Card", false, orderCustomer, orderRestaurant, null);
     orderList.Add(orderObj);
 
@@ -300,6 +308,17 @@ void listRestaurantsMenuItems()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 // -------------------------------------------------------------------------------------------------------------------------------
 
 // Feature 5
@@ -312,15 +331,7 @@ void createNewOrder()
     // Customer email input
     Console.Write("Enter Customer Email: ");
     string emailAddress = Console.ReadLine();
-    Customer orderCustomer = null;
-    foreach (Customer c in customerList)
-    {
-        if (c.EmailAddress == emailAddress)
-        {
-            orderCustomer = c;
-            break;
-        }
-    }
+    Customer orderCustomer = lookupCustomer(customerList, emailAddress);
     if (orderCustomer == null)
     {
         Console.WriteLine("Customer email does not exist");
@@ -330,15 +341,7 @@ void createNewOrder()
     // Restuarant ID input
     Console.Write("Enter Restaurant ID: ");
     string restaurantId = Console.ReadLine().ToUpper();
-    Restaurant orderRestaurant = null;
-    foreach (Restaurant r in restaurantList)
-    {
-        if (r.RestaurantId == restaurantId)
-        {
-            orderRestaurant = r;
-            break;
-        }
-    }
+    Restaurant orderRestaurant = lookupRestaurant(restaurantList, restaurantId);
     if (orderRestaurant == null)
     {
         Console.WriteLine("RestaurantID does not exist");
@@ -392,26 +395,39 @@ void createNewOrder()
     while (true)
     {
         Console.Write("Enter item number (0 to finish): ");
-        int itemChoice = Convert.ToInt32(Console.ReadLine());
 
-        if (itemChoice == 0)
-            break;
+        try
+        {
+            int itemChoice = Convert.ToInt32(Console.ReadLine());
 
-        if (itemChoice < 1 || itemChoice > menuItems.Count)
+            if (itemChoice == 0)
+                break;
+
+            if (itemChoice < 1 || itemChoice > menuItems.Count)
+            {
+                Console.WriteLine("Invalid choice.");
+                continue;
+            }
+
+            Console.Write("Enter quantity: ");
+            int itemQty = Convert.ToInt32(Console.ReadLine());
+
+            FoodItem selectedFood = menuItems[itemChoice - 1];
+
+            if (selectedItems.ContainsKey(selectedFood))
+            {
+                selectedItems[selectedFood] += itemQty;
+            }
+
+            else
+            {
+                selectedItems.Add(selectedFood, itemQty);
+            }
+        }
+        catch (FormatException)
         {
             Console.WriteLine("Invalid choice.");
-            continue;
         }
-
-        Console.Write("Enter quantity: ");
-        int itemQty = Convert.ToInt32(Console.ReadLine());
-
-        FoodItem selectedFood = menuItems[itemChoice - 1];
-
-        if (selectedItems.ContainsKey(selectedFood))
-            selectedItems[selectedFood] += itemQty;
-        else
-            selectedItems.Add(selectedFood, itemQty);
     }
 
     // Special request input
@@ -619,6 +635,18 @@ void createNewOrder()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 // -------------------------------------------------------------------------------------------------------------------------------
 
 // Feature 7
@@ -631,15 +659,7 @@ void modifyOrder()
     Console.Write("Enter Customer Email: ");
     string emailAddress = Console.ReadLine();
 
-    Customer orderCustomer = new Customer();
-    foreach (Customer c in customerList)
-    {
-        if (c.EmailAddress == emailAddress)
-        {
-            orderCustomer = c;
-            break;
-        }
-    }
+    Customer orderCustomer = lookupCustomer(customerList, emailAddress);
     if (orderCustomer == null)
     {
         Console.WriteLine("Customer email does not exist");
@@ -801,98 +821,7 @@ void modifyOrder()
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// -------------------------------------------------------------------------------------------------------------------------------
 
 // Feature 8
 
@@ -951,12 +880,136 @@ void modifyOrder()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// -------------------------------------------------------------------------------------------------------------------------------
+
+// Advanced feature A
+
+void ProcessPendingOrders(List<Order> orderList)
+{
+    // Set current datetime
+    DateTime processDateTime;
+    while (true)
+    {
+        try
+        {
+            Console.Write("Enter current date (dd/MM/yyyy): ");
+            string deliveryDate = Console.ReadLine();
+
+            Console.Write("Enter current time (hh:mm): ");
+            string deliveryTime = Console.ReadLine();
+
+            processDateTime = DateTime.ParseExact(
+                deliveryDate + " " + deliveryTime,
+                "dd/MM/yyyy HH:mm",
+                CultureInfo.InvariantCulture
+            );
+            break;
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("Invalid date or time format. Please try again.\n");
+        }
+    }
+
+    // Count number of pending orders
+    List<Order> pendingOrdersToday = new List<Order>();
+
+    for (int i = 0; i < orderList.Count; i++)
+    {
+        Order o = orderList[i];
+
+        if (o.OrderStatus == "Pending" && o.DeliveryDateTime.Date == processDateTime.Date)
+        {
+            pendingOrdersToday.Add(o);
+        }
+    }
+
+    int pendingCount = pendingOrdersToday.Count;
+    Console.WriteLine($"Total Pending Orders Today: {pendingCount}");
+
+    int preparingCount = 0;
+    int rejectedCount = 0;
+
+    foreach (Order order in pendingOrdersToday)
+    {
+        TimeSpan timeUntilDelivery = order.DeliveryDateTime - processDateTime;
+
+        if (timeUntilDelivery.TotalHours < 1)
+        {
+            order.OrderStatus = "Rejected";
+            rejectedCount++;
+        }
+        else
+        {
+            order.OrderStatus = "Preparing";
+            preparingCount++;
+        }
+    }
+
+    int processed = preparingCount + rejectedCount;
+
+    double percentage = 0;
+    if (pendingOrdersToday.Count > 0)
+    {
+        percentage = (double)processed / pendingOrdersToday.Count * 100;
+    }
+
+    Console.WriteLine("\nProcessing Summary");
+    Console.WriteLine("==================");
+    Console.WriteLine($"Orders processed: {processed}");
+    Console.WriteLine($"Preparing orders: {preparingCount}");
+    Console.WriteLine($"Rejected orders: {rejectedCount}");
+    Console.WriteLine($"Automatically processed percentage: {percentage:F2}%");
+}
+
+
+// -------------------------------------------------------------------------------------------------------------------------------
+
 // Program
 
 Console.WriteLine("Welcome to the Gruberoo Food Delivery System");
 Console.WriteLine($"{restaurantList.Count()} restaurants loaded!");
 Console.WriteLine($"{foodItemList.Count()} food items loaded!");
-Console.WriteLine($"{customerList.Count()} restaurants loaded!");
+Console.WriteLine($"{customerList.Count()} customers loaded!");
 Console.WriteLine($"{orderList.Count()} orders loaded!");
 
 while (true)
@@ -968,6 +1021,7 @@ while (true)
     Console.WriteLine("4. Process an order");
     Console.WriteLine("5. Modify an existing order");
     Console.WriteLine("6. Delete an existing order");
+    Console.WriteLine("7. Bulk process unprocessed orders for a current day");
     Console.WriteLine("0. Exit");
 
     Console.Write("Enter your choice: ");
@@ -999,6 +1053,10 @@ while (true)
         else if (choice == 6)
         {
 
+        }
+        else if (choice == 7)
+        {
+            ProcessPendingOrders(orderList);
         }
         else if (choice == 0)
         {
