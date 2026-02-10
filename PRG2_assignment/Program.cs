@@ -927,21 +927,31 @@ void ProcessPendingOrders(List<Order> orderList)
 {
     // Set current datetime
     DateTime processDateTime;
+
     while (true)
     {
         try
         {
-            Console.Write("Enter current date (dd/MM/yyyy): ");
+            Console.Write("Enter a current date (dd/MM/yyyy) [Press Enter for today]: ");
             string deliveryDate = Console.ReadLine();
 
-            Console.Write("Enter current time (hh:mm): ");
+            Console.Write("Enter a current time (HH:mm) [Press Enter for now]: ");
             string deliveryTime = Console.ReadLine();
 
-            processDateTime = DateTime.ParseExact(
-                deliveryDate + " " + deliveryTime,
-                "dd/MM/yyyy HH:mm",
-                CultureInfo.InvariantCulture
-            );
+            if (string.IsNullOrWhiteSpace(deliveryDate) && string.IsNullOrWhiteSpace(deliveryTime))
+            {
+                processDateTime = DateTime.Now;
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(deliveryDate))
+                    deliveryDate = DateTime.Now.ToString("dd/MM/yyyy");
+
+                if (string.IsNullOrWhiteSpace(deliveryTime))
+                    deliveryTime = DateTime.Now.ToString("HH:mm");
+
+                processDateTime = DateTime.ParseExact(deliveryDate + " " + deliveryTime,"dd/MM/yyyy HH:mm",CultureInfo.InvariantCulture);
+            }
             break;
         }
         catch (FormatException)
@@ -950,13 +960,11 @@ void ProcessPendingOrders(List<Order> orderList)
         }
     }
 
-    // Count number of pending orders
+    // Count number of pending orders for the given date
     List<Order> pendingOrdersToday = new List<Order>();
 
-    for (int i = 0; i < orderList.Count; i++)
+    foreach (Order o in orderList)
     {
-        Order o = orderList[i];
-
         if (o.OrderStatus == "Pending" && o.DeliveryDateTime.Date == processDateTime.Date)
         {
             pendingOrdersToday.Add(o);
@@ -964,7 +972,7 @@ void ProcessPendingOrders(List<Order> orderList)
     }
 
     int pendingCount = pendingOrdersToday.Count;
-    Console.WriteLine($"Total Pending Orders Today: {pendingCount}");
+    Console.WriteLine($"Total pending orders today ({processDateTime}): {pendingCount}");
 
     int preparingCount = 0;
     int rejectedCount = 0;
@@ -989,9 +997,7 @@ void ProcessPendingOrders(List<Order> orderList)
 
     double percentage = 0;
     if (pendingOrdersToday.Count > 0)
-    {
         percentage = (double)processed / pendingOrdersToday.Count * 100;
-    }
 
     Console.WriteLine("\nProcessing Summary");
     Console.WriteLine("==================");
