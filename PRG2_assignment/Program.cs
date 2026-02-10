@@ -75,7 +75,7 @@ for (int i = 1; i < fooditemsLines.Length; i++)
 List<Customer> customerList = new List<Customer>();
 string[] customerLines = File.ReadAllLines("data/customers.csv");
 
-for (int i = 1;i < customerLines.Length; i++)
+for (int i = 1; i < customerLines.Length; i++)
 {
     string line = customerLines[i];
     string[] data = line.Split(",");
@@ -105,7 +105,7 @@ for (int i = 1; i < orderLines.Length; i++)
         if (c == '"')
         {
             insideQuotes = !insideQuotes;
-            continue; 
+            continue;
         }
 
         if (c == ',' && !insideQuotes)
@@ -187,7 +187,7 @@ for (int i = 1; i < orderLines.Length; i++)
 
         double subTotal = foodItem.ItemPrice * qty;
 
-        OrderedFoodItem orderedFoodItemObj = new OrderedFoodItem(foodItem.ItemName,foodItem.ItemDesc,foodItem.ItemPrice,"",qty,subTotal);
+        OrderedFoodItem orderedFoodItemObj = new OrderedFoodItem(foodItem.ItemName, foodItem.ItemDesc, foodItem.ItemPrice, "", qty, subTotal);
 
         orderObj.AddOrderedFoodItem(orderedFoodItemObj);
     }
@@ -309,6 +309,7 @@ void createNewOrder()
     //Order info input
     Console.WriteLine("Create New Order\n================");
 
+    // Customer email input
     Console.Write("Enter Customer Email: ");
     string emailAddress = Console.ReadLine();
     Customer orderCustomer = null;
@@ -320,13 +321,13 @@ void createNewOrder()
             break;
         }
     }
-
     if (orderCustomer == null)
     {
         Console.WriteLine("Customer email does not exist");
         return;
     }
 
+    // Restuarant ID input
     Console.Write("Enter Restaurant ID: ");
     string restaurantId = Console.ReadLine().ToUpper();
     Restaurant orderRestaurant = null;
@@ -344,14 +345,35 @@ void createNewOrder()
         return;
     }
 
-    Console.Write("Enter Delivery Date (dd/mm/yyyy): ");
-    string deliveryDate = Console.ReadLine();
-    Console.Write("Enter Delivery Time (hh:mm): ");
-    string deliveryTime = Console.ReadLine();
+    // Delivery datetime input
+    DateTime deliveryDateTime;
+    try
+    {
+        Console.Write("Enter Delivery Date (dd/mm/yyyy): ");
+        string deliveryDate = Console.ReadLine();
 
-    DateTime deliveryDateTime = DateTime.ParseExact(
-    deliveryDate + " " + deliveryTime, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture);
+        Console.Write("Enter Delivery Time (hh:mm): ");
+        string deliveryTime = Console.ReadLine();
 
+        deliveryDateTime = DateTime.ParseExact(
+            deliveryDate + " " + deliveryTime,
+            "dd/MM/yyyy HH:mm",
+            CultureInfo.InvariantCulture
+        );
+
+        if (deliveryDateTime <= DateTime.Now)
+        {
+            Console.WriteLine("Delivery time must be in the future.");
+            return;
+        }
+    }
+    catch (FormatException)
+    {
+        Console.WriteLine("Invalid date or time format. Please try again.");
+        return;
+    }
+
+    // Delivery address input
     Console.Write("Enter Delivery Address: ");
     string deliveryAddress = Console.ReadLine();
 
@@ -691,6 +713,12 @@ void modifyOrder()
         Console.Write("Select item number to modify: ");
         int index = Convert.ToInt32(Console.ReadLine()) - 1;
 
+        if (index < 0 || index >= orderToChange.OrderedFoodItems.Count)
+        {
+            Console.WriteLine("Item number out of range.");
+            return;
+        }
+
         Console.Write("Enter new quantity (0 to remove): ");
         int newQty = Convert.ToInt32(Console.ReadLine());
 
@@ -700,8 +728,15 @@ void modifyOrder()
         }
         else
         {
-            orderToChange.OrderedFoodItems[index].QtyOrdered = newQty;
-            orderToChange.OrderedFoodItems[index].SubTotal = newQty * orderToChange.OrderedFoodItems[index].ItemPrice;
+            if (newQty < 0)
+            {
+                Console.WriteLine("Invalid quantity");
+            }
+            else
+            {
+                orderToChange.OrderedFoodItems[index].QtyOrdered = newQty;
+                orderToChange.OrderedFoodItems[index].SubTotal = newQty * orderToChange.OrderedFoodItems[index].ItemPrice;
+            }
         }
 
         // Recalculate total
@@ -719,7 +754,15 @@ void modifyOrder()
     else if (choice == 2) // Address
     {
         Console.Write("Enter new address: ");
-        orderToChange.DeliveryAddress = Console.ReadLine();
+        string newAddress = Console.ReadLine();
+
+        if (string.IsNullOrWhiteSpace(newAddress))
+        {
+            Console.WriteLine("Address cannot be empty.");
+            return;
+        }
+
+        orderToChange.DeliveryAddress = newAddress.Trim();
 
         Console.WriteLine($"\nOrder {orderToChange.OrderId} updated. New Address: {orderToChange.DeliveryAddress}");
     }
@@ -729,11 +772,25 @@ void modifyOrder()
         Console.Write("Enter new Delivery Time (hh:mm): ");
         string newTime = Console.ReadLine();
 
-        DateTime newDateTime = DateTime.ParseExact(orderToChange.DeliveryDateTime.ToString("dd/MM/yyyy") + " " + newTime, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture);
+        try
+        {
+            DateTime newDateTime = DateTime.ParseExact(orderToChange.DeliveryDateTime.ToString("dd/MM/yyyy") + " " + newTime, "dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture);
 
-        orderToChange.DeliveryDateTime = newDateTime;
+            if (newDateTime <= DateTime.Now)
+            {
+                Console.WriteLine("Delivery time must be in the future.");
+                return;
+            }
 
-        Console.WriteLine($"\nOrder {orderToChange.OrderId} updated. New Delivery Time: {newTime}");
+            orderToChange.DeliveryDateTime = newDateTime;
+
+            Console.WriteLine($"\nOrder {orderToChange.OrderId} updated. New Delivery Time: {newTime}");
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("Invalid time format. Please use hh:mm.");
+            return;
+        }
     }
 
     else
@@ -741,13 +798,6 @@ void modifyOrder()
         Console.WriteLine("Invalid choice");
         return;
     }
-
-    //Console.WriteLine("\nUpdated Order Details");
-    //Console.WriteLine("=====================");
-    //Console.WriteLine($"Order ID: {orderToChange.OrderId}");
-    //Console.WriteLine($"Total: ${orderToChange.OrderTotal:F2}");
-    //Console.WriteLine($"Delivery: {orderToChange.DeliveryDateTime:d/M/yyyy HH:mm}");
-    //Console.WriteLine($"Address: {orderToChange.DeliveryAddress}");
 }
 
 
@@ -921,39 +971,46 @@ while (true)
     Console.WriteLine("0. Exit");
 
     Console.Write("Enter your choice: ");
-    int choice = Convert.ToInt32(Console.ReadLine());
 
-    Console.WriteLine(); //break
-    if (choice == 1)
+    try
     {
-        listRestaurantsMenuItems();
-    }
-    else if (choice == 2)
-    {
+        int choice = Convert.ToInt32(Console.ReadLine());
+        Console.WriteLine(); //break
+        if (choice == 1)
+        {
+            listRestaurantsMenuItems();
+        }
+        else if (choice == 2)
+        {
 
-    }
-    else if (choice == 3)
-    {
-        createNewOrder();
-    }
-    else if (choice == 4)
-    {
+        }
+        else if (choice == 3)
+        {
+            createNewOrder();
+        }
+        else if (choice == 4)
+        {
 
-    }
-    else if (choice == 5)
-    {
-        modifyOrder();
-    }
-    else if (choice == 6)
-    {
+        }
+        else if (choice == 5)
+        {
+            modifyOrder();
+        }
+        else if (choice == 6)
+        {
 
+        }
+        else if (choice == 0)
+        {
+            Console.WriteLine("Exitting...");
+            return;
+        }
+        else
+        {
+            Console.WriteLine("Invalid choice.");
+        }
     }
-    else if (choice == 0)
-    {
-        Console.WriteLine("Exitting...");
-        return;
-    }
-    else
+    catch (FormatException)
     {
         Console.WriteLine("Invalid choice.");
     }
